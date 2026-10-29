@@ -1,0 +1,4 @@
+model,pr_auc_mean,pr_auc_sd
+majority,0.0444,0.0062
+logistic,0.4686,0.2326
+xgboost,0.4282,0.2057
