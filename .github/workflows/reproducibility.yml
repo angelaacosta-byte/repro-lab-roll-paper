@@ -1,0 +1,37 @@
+name: Reproducibility check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONHASHSEED: "0"
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install the locked environment
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-lock.txt pytest==8.4.2
+
+      - name: Reproduce the expected output (seed 42)
+        run: python src/train.py --seed 42
+
+      - name: Regenerate the 5-seed table
+        run: python src/run_seeds.py --out /tmp/results_check.csv
+
+      - name: Fair model comparison
+        run: python src/compare_models.py
+
+      - name: Run the automated tests
+        run: pytest -v
